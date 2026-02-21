@@ -6,14 +6,14 @@
 [![GitHub star chart](https://img.shields.io/github/stars/yeagerai/genlayer-project-boilerplate?style=social)](https://star-history.com/#yeagerai/genlayer-js)
 
 ## 👀 About
-This project includes the boilerplate code for a GenLayer use case implementation, specifically a football bets game.
+This project includes the boilerplate code for a GenLayer use case implementation, specifically a weather-based parametric payout MVP (drought cover).
 
 ## 📦 What's included
 - Basic requirements to deploy and test your intelligent contracts locally
 - Configuration file template
 <!-- - Test functions to write complete end-to-end tests -->
-- An example of an intelligent contract (Football Bets)
-- Example end-to-end tests for the contract provided
+- An example of an intelligent contract (`DroughtCover`)
+- Example end-to-end tests for drought trigger logic
 - A production-ready Next.js 15 frontend with TypeScript, TanStack Query, and Radix UI
 
 ## 🛠️ Requirements
@@ -23,7 +23,7 @@ This project includes the boilerplate code for a GenLayer use case implementatio
 ## 🚀 Steps to run this example
 
 ### 1. Deploy the contract
-   Deploy the contract from `/contracts/football_bets.py` using the GenLayer CLI:
+   Deploy the contract from `/contracts/drought_cover.py` using the GenLayer CLI:
    1. Choose the network that you want to use (studionet, localnet, or tesnet-*): `genlayer network`
    2. Execute the deploy command `genlayer deploy`. This command is going to execute the deploy script located in `/deploy/deployScript.ts`
 
@@ -59,35 +59,32 @@ This project includes the boilerplate code for a GenLayer use case implementatio
    gltest
    ```
 
-## ⚽ How the Football Bets Contract Works
+## 🌧️ How the Drought Cover Contract Works
 
-The Football Bets contract allows users to create bets for football matches, resolve those bets, and earn points for correct bets. Here's a breakdown of its main functionalities:
+The Drought Cover contract lets users define parametric weather policies and resolve them automatically based on observed rainfall values from trusted sources.
 
-1. Creating Bets:
-   - Users can create a bet for a specific football match by providing the game date, team names, and their predicted winner.
-   - The contract checks if the game has already finished and if the user has already made a bet for this match.
+1. Funding Pool:
+   - Liquidity providers fund a payout pool used for policy settlements.
 
-2. Resolving Bets:
-   - After a match has concluded, users can resolve their bets.
-   - The contract fetches the actual match result from a specified URL.
-   - If the Bet was correct, the user earns a point.
+2. Creating Policies:
+   - Users create policies with region, period, rainfall threshold, and payout amount.
 
-3. Querying Data:
-   - Users can retrieve all bets.
-   - The contract also allows querying of points, either for all players or for a specific player.
+3. Resolving Policies:
+   - Policies can be resolved from two web sources (`resolve_policy`) or deterministic values (`resolve_policy_with_values`).
+   - If both sources are below threshold, payout is triggered.
+   - If sources disagree, a tolerance-based tie-break rule is used.
 
-4. Getting Points:
-   - Points are awarded for correct bets.
-   - Users can check their total points or the points of any player.
+4. Querying State:
+   - Users can retrieve policy details, all policies, pool balance, and payout totals.
 
 ## 🧪 Tests
 
-This project includes integration tests that interact with the contract deployed in the Studio. These tests cover the main functionalities of the Football Bets contract:
+This project includes integration tests that interact with the contract deployed in the Studio. These tests cover the core drought flow:
 
-1. Creating a bet
-2. Resolving a bet
-3. Querying bets for a player
-4. Querying points for a player
+1. Funding pool
+2. Creating a policy
+3. Resolving and paying a triggered policy
+4. Resolving and expiring a non-triggered policy
 
 The tests simulate real-world interactions with the contract, ensuring that it behaves correctly under various scenarios. They use the GenLayer Studio to deploy and interact with the contract, providing a comprehensive check of the contract's functionality in a controlled environment.
 

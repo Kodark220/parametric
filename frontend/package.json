@@ -1,7 +1,7 @@
 {
-  "name": "genlayer-football-betting",
+  "name": "genlayer-truth-triggered-payouts",
   "version": "1.0.0",
-  "description": "GenLayer Football Betting - AI-powered prediction betting on GenLayer blockchain.",
+  "description": "GenLayer truth-triggered weather parametric payout dApp.",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",

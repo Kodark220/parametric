@@ -1,11 +1,11 @@
 {
-  "name": "GenLayer Football Market",
-  "short_name": "GenLayer Market",
-  "description": "AI-powered football match predictions on GenLayer blockchain",
+  "name": "Truth-Triggered Weather Payouts",
+  "short_name": "Weather Payouts",
+  "description": "GenLayer-based AI notary for automatic weather parametric payouts",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#9B6AF6",
+  "theme_color": "#2A7A4B",
   "icons": [
     {
       "src": "/favicon.svg",

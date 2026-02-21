@@ -1,6 +1,6 @@
-# GenLayer Football Market
+# Truth-Triggered Weather Payouts Frontend
 
-Next.js frontend for GenLayer Football Market - AI-powered football match predictions on GenLayer blockchain.
+Next.js frontend for a GenLayer-based weather parametric payout application.
 
 ## Setup
 
@@ -22,8 +22,8 @@ cp .env.example .env
 ```
 
 3. Configure environment variables:
-   - `NEXT_PUBLIC_CONTRACT_ADDRESS` - GenLayer Football Betting contract address
-   - `NEXT_PUBLIC_STUDIO_URL` - GenLayer Studio URL (default: https://studio.genlayer.com/api)
+   - `NEXT_PUBLIC_CONTRACT_ADDRESS` - Deployed `DroughtCover` contract address
+   - `NEXT_PUBLIC_GENLAYER_RPC_URL` - GenLayer Studio URL (default: https://studio.genlayer.com/api)
 
 ## Development
 
@@ -75,10 +75,9 @@ Accounts are stored in browser's localStorage for development convenience.
 
 ## Features
 
-- **Create Bets**: Create football match predictions with team names, game date, and predicted winner (Team 1, Team 2, or Draw)
-- **View Bets**: Real-time bet table with match details, predictions, status, and owners
-- **Resolve Bets**: Bet owners can resolve matches using GenLayer's AI to verify actual results
-- **Leaderboard**: Track top players by points earned from correct predictions
-- **Player Stats**: View your points and ranking in the community
-- **Glass-morphism UI**: Premium dark theme with OKLCH colors, backdrop blur effects, and smooth animations
-- **Real-time Updates**: Automatic data fetching with 3-second polling intervals via TanStack Query
+- **Create Policy Offer**: Provider creates a fully collateralized policy offer
+- **Pay Premium**: Buyer pays premium to activate policy
+- **Resolve Policy**: Owner resolves policy with deterministic values for MVP testing
+- **Verification Proof View**: Displays settlement result and proof hash
+- **Active Policies Table**: Tracks live policy states
+- **Withdrawable Balance View**: Shows earned/redeemable internal balance
