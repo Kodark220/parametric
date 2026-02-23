@@ -8,7 +8,9 @@
     "build": "cd frontend && npm run build",
     "start": "cd frontend && npm run start",
     "lint": "cd frontend && npm run lint",
-    "deploy": "genlayer deploy"
+    "deploy": "genlayer deploy",
+    "api:dev": "node --watch api/server.mjs",
+    "api:start": "node api/server.mjs"
   },
   "devDependencies": {
     "genlayer-js": "^0.18.3"

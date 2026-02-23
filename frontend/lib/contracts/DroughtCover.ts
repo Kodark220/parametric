@@ -20,14 +20,17 @@ function toPolicy(value: unknown): DroughtPolicy {
   const obj = normalize(value) as Record<string, unknown>;
   return {
     id: String(obj.id ?? ""),
+    policy_type: String(obj.policy_type ?? "weather_drought"),
     buyer: String(obj.buyer ?? ""),
     provider: String(obj.provider ?? ""),
     region: String(obj.region ?? ""),
+    validator_address: String(obj.validator_address ?? ""),
     start_date: String(obj.start_date ?? ""),
     end_date: String(obj.end_date ?? ""),
     metric: String(obj.metric ?? ""),
     trigger_operator: String(obj.trigger_operator ?? ""),
     threshold_mm: Number(obj.threshold_mm ?? 0),
+    threshold_uptime_bps: Number(obj.threshold_uptime_bps ?? 0),
     payout_amount: Number(obj.payout_amount ?? 0),
     premium_amount: Number(obj.premium_amount ?? 0),
     collateral_amount: Number(obj.collateral_amount ?? 0),
@@ -114,6 +117,36 @@ class DroughtCover {
     return this.waitReceipt(txHash as string);
   }
 
+  async createValidatorPolicyOffer(input: {
+    policyId: string;
+    buyerAddress: string;
+    validatorAddress: string;
+    startDate: string;
+    endDate: string;
+    thresholdUptimeBps: number;
+    payoutAmount: number;
+    premiumAmount: number;
+    collateralAmount: number;
+  }): Promise<TransactionReceipt> {
+    const txHash = await this.client.writeContract({
+      address: this.contractAddress,
+      functionName: "create_validator_policy_offer",
+      args: [
+        input.policyId,
+        input.buyerAddress,
+        input.validatorAddress,
+        input.startDate,
+        input.endDate,
+        input.thresholdUptimeBps,
+        input.payoutAmount,
+        input.premiumAmount,
+        input.collateralAmount,
+      ],
+      value: BigInt(0),
+    });
+    return this.waitReceipt(txHash as string);
+  }
+
   async payPremium(policyId: string, premiumPayment: number): Promise<TransactionReceipt> {
     const txHash = await this.client.writeContract({
       address: this.contractAddress,
@@ -178,9 +211,53 @@ class DroughtCover {
     return this.waitReceipt(txHash as string);
   }
 
+  async verifyAndSettleValidatorPolicy(input: {
+    policyId: string;
+    sourceAUrl: string;
+    sourceBUrl: string;
+    toleranceBps: number;
+    currentDate: string;
+  }): Promise<TransactionReceipt> {
+    const txHash = await this.client.writeContract({
+      address: this.contractAddress,
+      functionName: "verify_and_settle_validator_policy",
+      args: [
+        input.policyId,
+        input.sourceAUrl,
+        input.sourceBUrl,
+        input.toleranceBps,
+        input.currentDate,
+      ],
+      value: BigInt(0),
+    });
+    return this.waitReceipt(txHash as string);
+  }
+
+  async resolveValidatorPolicyWithValues(input: {
+    policyId: string;
+    sourceABps: number;
+    sourceBBps: number;
+    toleranceBps: number;
+    currentDate: string;
+  }): Promise<TransactionReceipt> {
+    const txHash = await this.client.writeContract({
+      address: this.contractAddress,
+      functionName: "resolve_validator_policy_with_values",
+      args: [
+        input.policyId,
+        input.sourceABps,
+        input.sourceBBps,
+        input.toleranceBps,
+        input.currentDate,
+      ],
+      value: BigInt(0),
+    });
+    return this.waitReceipt(txHash as string);
+  }
+
   private async waitReceipt(hash: string): Promise<TransactionReceipt> {
     const receipt = await this.client.waitForTransactionReceipt({
-      hash: hash as `0x${string}`,
+      hash: hash as unknown as any,
       status: "ACCEPTED" as never,
       retries: 24,
       interval: 5000,

@@ -9,6 +9,8 @@
 *.sln
 *.sw?
 .env
+api/.env
+frontend/.env.local
 node_modules
 # Python bytecode
 __pycache__/
@@ -22,4 +24,6 @@ __pycache__/
 /frontend/package-lock.json
 *.compiled.js
 package-lock.json
+frontend/tsconfig.tsbuildinfo
+frontend/.vscode/
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { WalletProvider } from "@/lib/genlayer/WalletProvider";
@@ -19,6 +19,28 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       })
   );
+
+  useEffect(() => {
+    // Some wallet extensions conflict and throw an uncaught error:
+    // "Cannot redefine property: ethereum".
+    // Ignore only this known extension-originated runtime error so app UI remains usable.
+    const handleWindowError = (event: ErrorEvent) => {
+      const message = event.message || "";
+      const source = event.filename || "";
+      const isExtensionError = source.startsWith("chrome-extension://");
+      const isEthereumRedefine =
+        message.includes("Cannot redefine property: ethereum");
+
+      if (isExtensionError && isEthereumRedefine) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("error", handleWindowError);
+    return () => {
+      window.removeEventListener("error", handleWindowError);
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

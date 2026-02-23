@@ -81,6 +81,39 @@ export function useCreatePolicyOffer() {
   });
 }
 
+export function useCreateValidatorPolicyOffer() {
+  const contract = useDroughtCoverContract();
+  const { address } = useWallet();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      policyId: string;
+      buyerAddress: string;
+      validatorAddress: string;
+      startDate: string;
+      endDate: string;
+      thresholdUptimeBps: number;
+      payoutAmount: number;
+      premiumAmount: number;
+      collateralAmount: number;
+    }) => {
+      if (!contract) throw new Error("Contract not configured");
+      if (!address) throw new Error("Connect wallet first");
+      return contract.createValidatorPolicyOffer(input);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["policies"] });
+      success("Validator policy offer created");
+    },
+    onError: (err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : "Failed to create validator policy";
+      error("Create validator policy failed", { description: message });
+    },
+  });
+}
+
 export function usePayPremium() {
   const contract = useDroughtCoverContract();
   const { address } = useWallet();
@@ -182,6 +215,36 @@ export function useVerifyAndSettlePolicy() {
     onError: (err: unknown) => {
       const message = err instanceof Error ? err.message : "Failed to run live verification";
       error("Live verification failed", { description: message });
+    },
+  });
+}
+
+export function useVerifyAndSettleValidatorPolicy() {
+  const contract = useDroughtCoverContract();
+  const { address } = useWallet();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      policyId: string;
+      sourceAUrl: string;
+      sourceBUrl: string;
+      toleranceBps: number;
+      currentDate: string;
+    }) => {
+      if (!contract) throw new Error("Contract not configured");
+      if (!address) throw new Error("Connect wallet first");
+      return contract.verifyAndSettleValidatorPolicy(input);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["policies"] });
+      queryClient.invalidateQueries({ queryKey: ["withdrawable"] });
+      success("Validator verification submitted");
+    },
+    onError: (err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : "Failed to run validator verification";
+      error("Validator verification failed", { description: message });
     },
   });
 }

@@ -7,14 +7,17 @@ export interface TransactionReceipt {
 
 export interface DroughtPolicy {
   id: string;
+  policy_type: string;
   buyer: string;
   provider: string;
   region: string;
+  validator_address: string;
   start_date: string;
   end_date: string;
   metric: string;
   trigger_operator: string;
   threshold_mm: number;
+  threshold_uptime_bps: number;
   payout_amount: number;
   premium_amount: number;
   collateral_amount: number;

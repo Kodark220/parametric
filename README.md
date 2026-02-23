@@ -29,8 +29,9 @@ This project includes the boilerplate code for a GenLayer use case implementatio
 
 ### 2. Setup the frontend environment
   1. All the content of the dApp is located in the `/frontend` folder.
-  2. Copy the `.env.example` file in the `frontend` folder and rename it to `.env`, then fill in the values for your configuration. The provided NEXT_PUBLIC_GENLAYER_RPC_URL value is the backend of the hosted GenLayer Studio.
-  3. Add the deployed contract address to the `/frontend/.env` under the variable `NEXT_PUBLIC_CONTRACT_ADDRESS`
+  2. Copy the `.env.example` file in the `frontend` folder and rename it to `.env`, then fill in the values for your configuration. The provided `NEXT_PUBLIC_GENLAYER_RPC_URL` value is the backend of the hosted GenLayer Studio.
+  3. Add the deployed contract address to the `/frontend/.env` under the variable `NEXT_PUBLIC_CONTRACT_ADDRESS`.
+  4. *(Optional)* If you plan to support WalletConnect (mobile wallets, QR code flow) you can register a project ID at https://cloud.walletconnect.com and set `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` in the env; leaving it blank still works but may log a warning.
 
 ### 4. Run the frontend Next.js app
    Execute the following commands in your terminal:
@@ -97,6 +98,34 @@ Connect with the GenLayer community to discuss, collaborate, and share insights:
 - **[Telegram Group](https://t.me/genlayer)**: For more informal chats and quick updates.
 
 Your continuous feedback drives better product development. Please engage with us regularly to test, discuss, and improve GenLayer.
+
+## API Integration (B2B)
+
+This repository now includes a minimal integration API in `api/server.mjs` for partner companies.
+
+### Setup
+
+1. Copy `api/.env.example` to `api/.env`
+2. Fill:
+   - `GENLAYER_CONTRACT_ADDRESS`
+   - `GENLAYER_SERVER_ACCOUNT` (required for write endpoints)
+   - `API_KEY`
+
+### Run
+
+```bash
+npm run api:dev
+```
+
+### Endpoints
+
+- `GET /health`
+- `POST /policies`
+- `POST /policies/:id/activate` (`mode=buyer|sponsor`)
+- `POST /policies/:id/verify`
+- `GET /policies/:id`
+- `GET /buyers/:wallet/policies`
+- `GET /buyers/:wallet/balance`
 
 ## 📖 Documentation
 For detailed information on how to use GenLayerJS SDK, please refer to our [documentation](https://docs.genlayer.com/).

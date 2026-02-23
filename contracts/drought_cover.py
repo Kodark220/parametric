@@ -11,14 +11,17 @@ ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 @dataclass
 class Policy:
     id: str
+    policy_type: str
     buyer: Address
     provider: Address
     region: str
+    validator_address: str
     start_date: str
     end_date: str
     metric: str
     trigger_operator: str
     threshold_mm: u256
+    threshold_uptime_bps: u256
     payout_amount: u256
     premium_amount: u256
     collateral_amount: u256
@@ -92,6 +95,16 @@ class DroughtCover(gl.Contract):
         ):
             raise Exception("Source URL is not trusted")
 
+    def _validate_validator_source_url(self, source_url: str) -> None:
+        if not source_url.startswith("https://"):
+            raise Exception("Source URL must be HTTPS")
+        if (
+            "beaconcha.in" not in source_url
+            and "rated.network" not in source_url
+            and "etherscan.io" not in source_url
+        ):
+            raise Exception("Validator source URL is not trusted")
+
     def _credit(self, address: Address, amount: int) -> None:
         if amount <= 0:
             return
@@ -127,6 +140,39 @@ Respond only with valid JSON:
         )
         return rainfall_mm, payload
 
+    def _extract_validator_uptime_bps(
+        self, source_url: str, validator_address: str, start_date: str, end_date: str
+    ) -> tuple[int, str]:
+        def fetch_uptime() -> str:
+            web_data = gl.nondet.web.render(source_url, mode="text")
+            task = f"""
+Extract validator uptime over this window as basis points (bps), where:
+- 10000 means 100.00%
+- 9800 means 98.00%
+
+Validator: {validator_address}
+Window: {start_date} to {end_date}
+
+Web content:
+{web_data}
+
+Respond only with valid JSON:
+{{
+  "uptime_bps": int
+}}
+            """
+            result = gl.nondet.exec_prompt(task, response_format="json")
+            return json.dumps(result, sort_keys=True)
+
+        canonical_result = gl.eq_principle.strict_eq(fetch_uptime)
+        uptime_json = json.loads(canonical_result)
+        uptime_bps = int(uptime_json["uptime_bps"])
+        payload = (
+            f"url={source_url}|validator={validator_address}|start={start_date}|end={end_date}|"
+            f"result={canonical_result}"
+        )
+        return uptime_bps, payload
+
     def _evaluate_trigger(
         self, operator: str, threshold_mm: int, source_a_mm: int, source_b_mm: int, tolerance_mm: int
     ) -> tuple[bool, str]:
@@ -149,6 +195,31 @@ Respond only with valid JSON:
         if abs(source_a_mm - source_b_mm) <= tolerance_mm:
             average_mm = (source_a_mm + source_b_mm) // 2
             return compare(average_mm), "Sources disagreed; tie-break used average rainfall"
+
+        raise Exception("Sources disagree beyond tolerance. Manual review required")
+
+    def _evaluate_uptime_trigger(
+        self, operator: str, threshold_bps: int, source_a_bps: int, source_b_bps: int, tolerance_bps: int
+    ) -> tuple[bool, str]:
+        if operator not in ["<", "<="]:
+            raise Exception("Unsupported trigger operator")
+
+        def compare(value: int) -> bool:
+            if operator == "<":
+                return value < threshold_bps
+            return value <= threshold_bps
+
+        source_a_match = compare(source_a_bps)
+        source_b_match = compare(source_b_bps)
+
+        if source_a_match and source_b_match:
+            return True, "Both sources confirm uptime trigger breach"
+        if (not source_a_match) and (not source_b_match):
+            return False, "Both sources confirm uptime trigger not breached"
+
+        if abs(source_a_bps - source_b_bps) <= tolerance_bps:
+            average_bps = (source_a_bps + source_b_bps) // 2
+            return compare(average_bps), "Sources disagreed; tie-break used average uptime"
 
         raise Exception("Sources disagree beyond tolerance. Manual review required")
 
@@ -212,14 +283,83 @@ Respond only with valid JSON:
 
         self.policies[policy_id] = Policy(
             id=policy_id,
+            policy_type="weather_drought",
             buyer=buyer,
             provider=Address(gl.message.sender_address.as_hex),
             region=region,
+            validator_address="",
             start_date=start_date,
             end_date=end_date,
             metric="rainfall_mm",
             trigger_operator="<",
             threshold_mm=u256(threshold_mm),
+            threshold_uptime_bps=u256(0),
+            payout_amount=u256(payout_amount),
+            premium_amount=u256(premium_amount),
+            collateral_amount=u256(collateral_amount),
+            premium_paid=False,
+            premium_payer="",
+            status="FUNDED",
+            source_a_url="",
+            source_b_url="",
+            source_a_mm="",
+            source_b_mm="",
+            source_a_hash="",
+            source_b_hash="",
+            resolved_by="",
+            settlement_result="PENDING",
+            settlement_proof_hash="",
+            decision_reason="",
+        )
+
+    @gl.public.write
+    def create_validator_policy_offer(
+        self,
+        policy_id: str,
+        buyer_address: str,
+        validator_address: str,
+        start_date: str,
+        end_date: str,
+        threshold_uptime_bps: int,
+        payout_amount: int,
+        premium_amount: int,
+        collateral_amount: int,
+    ) -> None:
+        if len(policy_id.strip()) == 0:
+            raise Exception("Policy id cannot be empty")
+        if len(validator_address.strip()) == 0:
+            raise Exception("Validator address cannot be empty")
+        if policy_id in self.policies:
+            raise Exception("Policy id already exists")
+        self._validate_period(start_date, end_date)
+        if threshold_uptime_bps <= 0 or threshold_uptime_bps > 10000:
+            raise Exception("Uptime threshold must be between 1 and 10000 bps")
+        if payout_amount <= 0:
+            raise Exception("Payout amount must be greater than zero")
+        if premium_amount <= 0:
+            raise Exception("Premium amount must be greater than zero")
+        if collateral_amount != payout_amount:
+            raise Exception("Provider collateral must equal payout amount")
+
+        buyer = (
+            Address(ZERO_ADDRESS)
+            if len(buyer_address.strip()) == 0
+            else Address(buyer_address)
+        )
+
+        self.policies[policy_id] = Policy(
+            id=policy_id,
+            policy_type="validator_downtime",
+            buyer=buyer,
+            provider=Address(gl.message.sender_address.as_hex),
+            region="",
+            validator_address=validator_address,
+            start_date=start_date,
+            end_date=end_date,
+            metric="uptime_bps",
+            trigger_operator="<",
+            threshold_mm=u256(0),
+            threshold_uptime_bps=u256(threshold_uptime_bps),
             payout_amount=u256(payout_amount),
             premium_amount=u256(premium_amount),
             collateral_amount=u256(collateral_amount),
@@ -317,6 +457,8 @@ Respond only with valid JSON:
         policy = self._require_policy(policy_id)
         if policy.status != "ACTIVE":
             raise Exception("Policy is not active")
+        if policy.policy_type != "weather_drought":
+            raise Exception("Use validator settle flow for validator policies")
         if tolerance_mm < 0 or tolerance_mm > 100:
             raise Exception("Tolerance must be between 0 and 100mm")
         self._require_after_end_date(policy, current_date)
@@ -366,6 +508,8 @@ Respond only with valid JSON:
         policy = self._require_policy(policy_id)
         if policy.status != "ACTIVE":
             raise Exception("Policy is not active")
+        if policy.policy_type != "weather_drought":
+            raise Exception("Use validator settle flow for validator policies")
         if tolerance_mm < 0 or tolerance_mm > 100:
             raise Exception("Tolerance must be between 0 and 100mm")
         self._require_after_end_date(policy, current_date)
@@ -388,19 +532,117 @@ Respond only with valid JSON:
         policy = self.policies[policy_id]
         self.policies[policy_id] = policy
 
+    @gl.public.write
+    def verify_and_settle_validator_policy(
+        self,
+        policy_id: str,
+        source_a_url: str,
+        source_b_url: str,
+        tolerance_bps: int,
+        current_date: str,
+    ) -> None:
+        self._require_owner()
+        policy = self._require_policy(policy_id)
+        if policy.status != "ACTIVE":
+            raise Exception("Policy is not active")
+        if policy.policy_type != "validator_downtime":
+            raise Exception("Policy is not validator type")
+        if tolerance_bps < 0 or tolerance_bps > 1000:
+            raise Exception("Tolerance must be between 0 and 1000 bps")
+        self._require_after_end_date(policy, current_date)
+        self._validate_validator_source_url(source_a_url)
+        self._validate_validator_source_url(source_b_url)
+
+        source_a_bps, source_a_hash = self._extract_validator_uptime_bps(
+            source_a_url, policy.validator_address, policy.start_date, policy.end_date
+        )
+        source_b_bps, source_b_hash = self._extract_validator_uptime_bps(
+            source_b_url, policy.validator_address, policy.start_date, policy.end_date
+        )
+
+        policy.source_a_url = source_a_url
+        policy.source_b_url = source_b_url
+        policy.source_a_mm = str(source_a_bps)
+        policy.source_b_mm = str(source_b_bps)
+        policy.source_a_hash = source_a_hash
+        policy.source_b_hash = source_b_hash
+        self.policies[policy_id] = policy
+
+        triggered, reason = self._evaluate_uptime_trigger(
+            policy.trigger_operator,
+            int(policy.threshold_uptime_bps),
+            source_a_bps,
+            source_b_bps,
+            int(tolerance_bps),
+        )
+
+        proof_hash = (
+            f"{policy_id}:{source_a_url}:{source_b_url}:{source_a_bps}:{source_b_bps}:{int(tolerance_bps)}"
+        )
+        self._apply_settlement(policy_id, triggered, proof_hash, reason)
+        policy = self.policies[policy_id]
+        self.policies[policy_id] = policy
+
+    @gl.public.write
+    def resolve_validator_policy_with_values(
+        self,
+        policy_id: str,
+        source_a_bps: int,
+        source_b_bps: int,
+        tolerance_bps: int,
+        current_date: str,
+    ) -> None:
+        self._require_owner()
+        policy = self._require_policy(policy_id)
+        if policy.status != "ACTIVE":
+            raise Exception("Policy is not active")
+        if policy.policy_type != "validator_downtime":
+            raise Exception("Policy is not validator type")
+        if tolerance_bps < 0 or tolerance_bps > 1000:
+            raise Exception("Tolerance must be between 0 and 1000 bps")
+        self._require_after_end_date(policy, current_date)
+
+        a_bps = int(source_a_bps)
+        b_bps = int(source_b_bps)
+        if a_bps < 0 or a_bps > 10000 or b_bps < 0 or b_bps > 10000:
+            raise Exception("Uptime values must be between 0 and 10000 bps")
+
+        policy.source_a_url = "manual://validator-source-a"
+        policy.source_b_url = "manual://validator-source-b"
+        policy.source_a_mm = str(a_bps)
+        policy.source_b_mm = str(b_bps)
+        policy.source_a_hash = f"manual-a-bps:{a_bps}"
+        policy.source_b_hash = f"manual-b-bps:{b_bps}"
+        self.policies[policy_id] = policy
+
+        triggered, reason = self._evaluate_uptime_trigger(
+            policy.trigger_operator,
+            int(policy.threshold_uptime_bps),
+            a_bps,
+            b_bps,
+            int(tolerance_bps),
+        )
+        proof_hash = f"manual-validator:{policy_id}:{a_bps}:{b_bps}:{int(tolerance_bps)}:{current_date}"
+        self._apply_settlement(policy_id, triggered, proof_hash, reason)
+        policy = self.policies[policy_id]
+        self.policies[policy_id] = policy
+
     @gl.public.view
     def get_policy(self, policy_id: str) -> dict:
         policy = self._require_policy(policy_id)
         return {
             "id": policy.id,
+            "policy_type": policy.policy_type,
             "buyer": policy.buyer.as_hex,
             "provider": policy.provider.as_hex,
             "region": policy.region,
+            "validator_address": policy.validator_address,
             "start_date": policy.start_date,
             "end_date": policy.end_date,
             "metric": policy.metric,
             "trigger_operator": policy.trigger_operator,
             "threshold_mm": int(policy.threshold_mm),
+            "threshold_uptime_bps": int(policy.threshold_uptime_bps),
             "payout_amount": int(policy.payout_amount),
             "premium_amount": int(policy.premium_amount),
             "collateral_amount": int(policy.collateral_amount),
