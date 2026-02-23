@@ -93,7 +93,7 @@ async function writeAndWait(client, contractAddress, functionName, args) {
 
 loadEnvFile();
 
-const API_PORT = Number(process.env.API_PORT || 8080);
+const API_PORT = Number(process.env.PORT || process.env.API_PORT || 8080);
 const API_KEY = process.env.API_KEY || "";
 const CONTRACT_ADDRESS = process.env.GENLAYER_CONTRACT_ADDRESS || "";
 

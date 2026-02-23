@@ -1,0 +1,56 @@
+services:
+  - type: web
+    name: certlayer-api
+    runtime: node
+    plan: starter
+    rootDir: .
+    buildCommand: npm ci
+    startCommand: node api/server.mjs
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.21.1
+      - key: GENLAYER_RPC_URL
+        value: https://studio.genlayer.com/api
+      - key: GENLAYER_CHAIN
+        value: studionet
+      - key: GENLAYER_CONTRACT_ADDRESS
+        value: 0xb0B78E05F28e882C858A39EFc071fAa18820D74b
+      - key: API_PORT
+        value: 8080
+      - key: API_KEY
+        generateValue: true
+      - key: GENLAYER_SERVER_ACCOUNT
+        sync: false
+
+  - type: worker
+    name: certlayer-worker
+    runtime: node
+    plan: starter
+    rootDir: .
+    buildCommand: npm ci
+    startCommand: node api/auto-settle.mjs
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.21.1
+      - key: AUTO_SETTLE_INTERVAL_MS
+        value: 60000
+      - key: AUTO_SETTLE_ELIGIBLE_STATUSES
+        value: ACTIVE
+      - key: AUTO_SETTLE_TOLERANCE_MM
+        value: 5
+      - key: AUTO_SETTLE_TOLERANCE_BPS
+        value: 50
+      - key: AUTO_SETTLE_WEATHER_SOURCE_A_URL
+        value: https://open-meteo.com/en/docs/climate-api
+      - key: AUTO_SETTLE_WEATHER_SOURCE_B_URL
+        value: https://www.weatherapi.com/docs/
+      - key: AUTO_SETTLE_VALIDATOR_SOURCE_A_URL
+        value: https://beaconcha.in
+      - key: AUTO_SETTLE_VALIDATOR_SOURCE_B_URL
+        value: https://rated.network
+      - key: AUTO_SETTLE_API_BASE
+        sync: false
+      - key: API_KEY
+        sync: false
