@@ -1071,23 +1071,21 @@ export default function HomePage() {
                 Pick a policy type and create it instantly.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {POLICY_TYPE_CATALOG.map((item) => (
-                <div
+                <button
                   key={item.id}
-                  className="rounded-lg border border-white/10 bg-black/20 px-4 py-3"
+                  type="button"
+                  onClick={() => selectBuyerPolicyType(item.id)}
+                  className={`h-full rounded-lg border px-4 py-3 text-left transition-colors ${
+                    buyerCreateType === item.id
+                      ? "border-emerald-400/70 bg-emerald-500/10"
+                      : "border-white/10 bg-black/20 hover:border-white/25"
+                  }`}
                 >
                   <p className="text-sm font-medium">{item.label}</p>
-                  <p className="text-xs text-muted-foreground">{item.description}</p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="mt-3"
-                    onClick={() => selectBuyerPolicyType(item.id)}
-                  >
-                    Select
-                  </Button>
-                </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
+                </button>
               ))}
             </div>
           </section>
@@ -1099,8 +1097,7 @@ export default function HomePage() {
               title="Create Policy"
               subtitle="Create first, then activate assigned policies"
             >
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm font-medium">Mode</p>
+              <div className="mb-3 flex items-center justify-end">
                 <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -1125,31 +1122,28 @@ export default function HomePage() {
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Policy Type
                 </p>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                  <Button
-                    size="sm"
-                    className="w-full justify-center"
-                    variant={buyerCreateType === "weather_drought" ? "default" : "outline"}
-                    onClick={() => setBuyerCreateType("weather_drought")}
-                  >
-                    Drought
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="w-full justify-center"
-                    variant={buyerCreateType === "event_rainfall" ? "default" : "outline"}
-                    onClick={() => setBuyerCreateType("event_rainfall")}
-                  >
-                    Event
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="w-full justify-center"
-                    variant={buyerCreateType === "validator_downtime" ? "default" : "outline"}
-                    onClick={() => setBuyerCreateType("validator_downtime")}
-                  >
-                    Validator
-                  </Button>
+                <div className="rounded-xl border border-white/10 bg-black/20 p-1.5">
+                  <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+                    {[
+                      { id: "weather_drought", label: "Drought" },
+                      { id: "event_rainfall", label: "Event" },
+                      { id: "validator_downtime", label: "Validator" },
+                    ].map((option) => (
+                      <Button
+                        key={option.id}
+                        size="sm"
+                        className="h-9 w-full rounded-lg text-sm font-medium"
+                        variant={buyerCreateType === option.id ? "default" : "ghost"}
+                        onClick={() =>
+                          setBuyerCreateType(
+                            option.id as "weather_drought" | "event_rainfall" | "validator_downtime"
+                          )
+                        }
+                      >
+                        {option.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
               {buyerCreateType !== "validator_downtime" ? (
