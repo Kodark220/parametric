@@ -683,7 +683,7 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
           <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-card/90 via-secondary/60 to-background p-8">
             <div className="pointer-events-none absolute -right-20 -top-16 h-52 w-52 rounded-full bg-primary/20 blur-3xl" />
-            <h1 className="relative text-4xl font-semibold tracking-tight">Proofpay</h1>
+            <h1 className="relative text-4xl font-semibold tracking-tight">CertLayer</h1>
             <p className="relative mt-3 max-w-xl text-sm text-muted-foreground md:text-base">
               Automated financial guarantees triggered by objective data. No claims process. Faster settlement.
             </p>
@@ -816,7 +816,7 @@ export default function HomePage() {
               <div className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs text-muted-foreground">
                 Demo Mode | Live GenLayer Contract
               </div>
-              <h1 className="text-3xl font-semibold md:text-4xl">Proofpay</h1>
+              <h1 className="text-3xl font-semibold md:text-4xl">CertLayer</h1>
               <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
                 Configure coverage, activate policies, and verify outcomes on-chain.
               </p>

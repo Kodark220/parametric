@@ -125,7 +125,7 @@ const server = createServer(async (req, res) => {
     if (method === "GET" && url.pathname === "/health") {
       return json(res, 200, {
         ok: true,
-        service: "proofpay-api",
+        service: "certlayer-api",
         contract_address: CONTRACT_ADDRESS || "",
         chain: (process.env.GENLAYER_CHAIN || "studionet").toLowerCase(),
         has_server_account: !!process.env.GENLAYER_SERVER_ACCOUNT,
@@ -287,5 +287,5 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(API_PORT, () => {
-  console.log(`Proofpay API listening on http://localhost:${API_PORT}`);
+  console.log(`CertLayer API listening on http://localhost:${API_PORT}`);
 });

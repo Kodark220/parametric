@@ -1,7 +1,7 @@
 {
-  "name": "genlayer-truth-triggered-payouts",
+  "name": "certlayer-frontend",
   "version": "1.0.0",
-  "description": "GenLayer truth-triggered weather parametric payout dApp.",
+  "description": "CertLayer frontend for GenLayer parametric payout policies.",
   "main": "index.js",
   "scripts": {
     "dev": "next dev --webpack",

@@ -3,9 +3,9 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Truth-Triggered Weather Payouts",
+  title: "CertLayer",
   description:
-    "GenLayer AI notary for weather-parametric policies with automatic payouts.",
+    "CertLayer: GenLayer AI notary for parametric policies with automatic payouts.",
   manifest: "/site.webmanifest",
   icons: {
     icon: [
