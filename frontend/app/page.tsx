@@ -52,13 +52,13 @@ function Panel({
   subtitle,
   children,
 }: {
-  title: string;
+  title?: string;
   subtitle?: string;
   children: React.ReactNode;
 }) {
   return (
     <article className="brand-card rounded-xl p-5">
-      <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+      {title ? <h3 className="text-lg font-semibold tracking-tight">{title}</h3> : null}
       {subtitle ? <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p> : null}
       <div className="mt-4">{children}</div>
     </article>
@@ -1075,7 +1075,6 @@ export default function HomePage() {
         {!hasFullAccess ? (
           <section className="grid gap-4 lg:grid-cols-1" ref={buyerCreatePanelRef}>
             <Panel
-              title="Create Policy"
               subtitle="Create first, then activate assigned policies"
             >
               <div className="mb-5 rounded-xl border border-cyan-300/25 bg-gradient-to-r from-cyan-500/12 via-blue-500/10 to-indigo-500/12 p-3 shadow-[0_10px_28px_rgba(6,182,212,0.08)]">
