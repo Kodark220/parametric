@@ -1078,18 +1078,18 @@ export default function HomePage() {
               title="Create Policy"
               subtitle="Create first, then activate assigned policies"
             >
-              <div className="mb-3 flex items-center justify-end">
-                <div className="flex gap-2">
+              <div className="mb-4 flex items-center justify-end">
+                <div className="rounded-lg border border-white/15 bg-black/25 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] flex gap-1">
                 <Button
                   size="sm"
-                  variant={buyerFlowTab === "create" ? "default" : "outline"}
+                  variant={buyerFlowTab === "create" ? "gradient" : "ghost"}
                   onClick={() => setBuyerFlowTab("create")}
                 >
                   Create
                 </Button>
                 <Button
                   size="sm"
-                  variant={buyerFlowTab === "activate" ? "default" : "outline"}
+                  variant={buyerFlowTab === "activate" ? "gradient" : "ghost"}
                   onClick={() => setBuyerFlowTab("activate")}
                 >
                   Activate
@@ -1105,7 +1105,7 @@ export default function HomePage() {
                 </p>
                 <select
                   id="buyer-policy-type"
-                  className="h-10 w-full max-w-[260px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  className="h-10 w-full max-w-[280px] rounded-md border border-white/25 bg-slate-950/70 px-3 py-2 text-sm shadow-[0_0_0_1px_rgba(255,255,255,0.03)]"
                   value={buyerCreateType}
                   onChange={(e) =>
                     applyBuyerPreset(
@@ -1119,10 +1119,11 @@ export default function HomePage() {
                 </select>
               </div>
               {buyerCreateType !== "validator_downtime" ? (
-                <div className="max-w-[320px] space-y-3">
+                <div className="max-w-[340px] space-y-3 rounded-xl border border-cyan-300/20 bg-gradient-to-b from-cyan-500/10 to-blue-500/5 p-4">
                   <div>
                     <Label htmlFor="buyer-policy-id">Policy ID</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-policy-id"
                       value={createForm.policyId}
                       onChange={(e) => setCreateForm((p) => ({ ...p, policyId: e.target.value }))}
@@ -1133,7 +1134,7 @@ export default function HomePage() {
                     <Label htmlFor="buyer-location">Location</Label>
                     <select
                       id="buyer-location"
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      className="h-10 w-full rounded-md border border-white/25 bg-slate-950/65 px-3 py-2 text-sm"
                       value={createForm.location}
                       onChange={(e) => setCreateForm((p) => ({ ...p, location: e.target.value }))}
                     >
@@ -1147,6 +1148,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-start-date">Start Date</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-start-date"
                       type="date"
                       value={createForm.startDate}
@@ -1156,6 +1158,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-end-date">End Date</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-end-date"
                       type="date"
                       value={createForm.endDate}
@@ -1167,6 +1170,7 @@ export default function HomePage() {
                       {buyerCreateType === "event_rainfall" ? "Rain Threshold (mm)" : "Threshold"}
                     </Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-threshold"
                       type="number"
                       value={createForm.thresholdMm}
@@ -1176,6 +1180,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-payout">Payout</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-payout"
                       type="number"
                       value={createForm.payoutUsd}
@@ -1185,6 +1190,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-premium">Premium</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-premium"
                       type="number"
                       value={createForm.premiumUsd}
@@ -1193,10 +1199,11 @@ export default function HomePage() {
                   </div>
                 </div>
               ) : (
-                <div className="max-w-[320px] space-y-3">
+                <div className="max-w-[340px] space-y-3 rounded-xl border border-blue-300/20 bg-gradient-to-b from-blue-500/10 to-indigo-500/5 p-4">
                   <div>
                     <Label htmlFor="buyer-validator-policy-id">Policy ID</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-validator-policy-id"
                       value={validatorCreateForm.policyId}
                       onChange={(e) => setValidatorCreateForm((p) => ({ ...p, policyId: e.target.value }))}
@@ -1205,6 +1212,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-validator-address">Validator Address</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-validator-address"
                       value={validatorCreateForm.validatorAddress}
                       onChange={(e) => setValidatorCreateForm((p) => ({ ...p, validatorAddress: e.target.value }))}
@@ -1213,6 +1221,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-validator-start-date">Start Date</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-validator-start-date"
                       type="date"
                       value={validatorCreateForm.startDate}
@@ -1222,6 +1231,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-validator-end-date">End Date</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-validator-end-date"
                       type="date"
                       value={validatorCreateForm.endDate}
@@ -1231,6 +1241,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-validator-threshold">Threshold (bps)</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-validator-threshold"
                       type="number"
                       value={validatorCreateForm.thresholdUptimeBps}
@@ -1240,6 +1251,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-validator-payout">Payout</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-validator-payout"
                       type="number"
                       value={validatorCreateForm.payoutUsd}
@@ -1249,6 +1261,7 @@ export default function HomePage() {
                   <div>
                     <Label htmlFor="buyer-validator-premium">Premium</Label>
                     <Input
+                      className="border-white/25 bg-slate-950/65"
                       id="buyer-validator-premium"
                       type="number"
                       value={validatorCreateForm.premiumUsd}
