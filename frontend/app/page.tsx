@@ -83,6 +83,14 @@ const POLICY_TYPE_CATALOG = [
   },
 ] as const;
 
+const LOCATION_OPTIONS = [
+  { value: "Nigeria", label: "Nigeria" },
+  { value: "United States", label: "United States (US)" },
+  { value: "United Kingdom", label: "United Kingdom (UK)" },
+  { value: "India", label: "India" },
+  { value: "South Korea", label: "South Korea" },
+] as const;
+
 function makePolicyId(prefix: string): string {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const n = Math.floor(Math.random() * 1000)
@@ -154,7 +162,7 @@ export default function HomePage() {
     policyId: "demo-001",
     buyerAddress: address ?? "",
     buyerEmail: "",
-    location: "Lagos, NG",
+    location: "Nigeria",
     startDate: "2026-02-13",
     endDate: "2026-02-19",
     thresholdMm: "20",
@@ -612,7 +620,7 @@ export default function HomePage() {
       setCreateForm((p) => ({
         ...p,
         policyId: makePolicyId("event"),
-        location: "Lagos, NG",
+        location: "Nigeria",
         startDate: todayDate(),
         endDate: todayDate(),
         thresholdMm: "60",
@@ -626,23 +634,13 @@ export default function HomePage() {
     setCreateForm((p) => ({
       ...p,
       policyId: makePolicyId("drought"),
-      location: "Lagos, NG",
+      location: "Nigeria",
       startDate: todayDate(),
       endDate: todayDate(),
       thresholdMm: "20",
       payoutUsd: "1000",
       premiumUsd: "50",
     }));
-  };
-
-  const selectBuyerPolicyType = (
-    type: "weather_drought" | "event_rainfall" | "validator_downtime"
-  ) => {
-    setBuyerFlowTab("create");
-    applyBuyerPreset(type);
-    setTimeout(() => {
-      buyerCreatePanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
   };
 
   const applyAgricultureTemplate = () => {
@@ -878,7 +876,18 @@ export default function HomePage() {
                 <Label htmlFor="policy-id">Policy ID</Label>
                 <Input className="max-w-[240px]" id="policy-id" value={createForm.policyId} onChange={(e) => setCreateForm((p) => ({ ...p, policyId: e.target.value }))} />
                 <Label htmlFor="location">Location</Label>
-                <Input className="max-w-[240px]" id="location" value={createForm.location} onChange={(e) => setCreateForm((p) => ({ ...p, location: e.target.value }))} />
+                <select
+                  id="location"
+                  className="h-10 w-full max-w-[240px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={createForm.location}
+                  onChange={(e) => setCreateForm((p) => ({ ...p, location: e.target.value }))}
+                >
+                  {LOCATION_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="start-date">Start Date</Label>
@@ -1064,34 +1073,6 @@ export default function HomePage() {
         ) : null}
 
         {!hasFullAccess ? (
-          <section className="brand-card rounded-xl p-5">
-            <div className="mb-3">
-              <h3 className="text-lg font-semibold">Available Policy Types</h3>
-              <p className="text-sm text-muted-foreground">
-                Pick a policy type and create it instantly.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {POLICY_TYPE_CATALOG.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => selectBuyerPolicyType(item.id)}
-                  className={`h-full rounded-lg border px-4 py-3 text-left transition-colors ${
-                    buyerCreateType === item.id
-                      ? "border-emerald-400/70 bg-emerald-500/10"
-                      : "border-white/10 bg-black/20 hover:border-white/25"
-                  }`}
-                >
-                  <p className="text-sm font-medium">{item.label}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
-                </button>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {!hasFullAccess ? (
           <section className="grid gap-4 lg:grid-cols-1" ref={buyerCreatePanelRef}>
             <Panel
               title="Create Policy"
@@ -1122,181 +1103,157 @@ export default function HomePage() {
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Policy Type
                 </p>
-                <div className="rounded-xl border border-white/10 bg-black/20 p-1.5">
-                  <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
-                    {[
-                      { id: "weather_drought", label: "Drought" },
-                      { id: "event_rainfall", label: "Event" },
-                      { id: "validator_downtime", label: "Validator" },
-                    ].map((option) => (
-                      <Button
-                        key={option.id}
-                        size="sm"
-                        className="h-9 w-full rounded-lg text-sm font-medium"
-                        variant={buyerCreateType === option.id ? "default" : "ghost"}
-                        onClick={() =>
-                          setBuyerCreateType(
-                            option.id as "weather_drought" | "event_rainfall" | "validator_downtime"
-                          )
-                        }
-                      >
-                        {option.label}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+                <select
+                  id="buyer-policy-type"
+                  className="h-10 w-full max-w-[260px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={buyerCreateType}
+                  onChange={(e) =>
+                    applyBuyerPreset(
+                      e.target.value as "weather_drought" | "event_rainfall" | "validator_downtime"
+                    )
+                  }
+                >
+                  <option value="weather_drought">Drought</option>
+                  <option value="event_rainfall">Event</option>
+                  <option value="validator_downtime">Validator</option>
+                </select>
               </div>
               {buyerCreateType !== "validator_downtime" ? (
-                <div className="space-y-4">
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div>
-                      <Label htmlFor="buyer-policy-id">Policy ID</Label>
-                      <Input
-                        className="max-w-[240px]"
-                        id="buyer-policy-id"
-                        value={createForm.policyId}
-                        onChange={(e) => setCreateForm((p) => ({ ...p, policyId: e.target.value }))}
-                        placeholder="e.g. demo-001"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="buyer-location">Location</Label>
-                      <Input
-                        className="max-w-[240px]"
-                        id="buyer-location"
-                        value={createForm.location}
-                        onChange={(e) => setCreateForm((p) => ({ ...p, location: e.target.value }))}
-                        placeholder="e.g. Lagos, NG"
-                      />
-                    </div>
+                <div className="max-w-[320px] space-y-3">
+                  <div>
+                    <Label htmlFor="buyer-policy-id">Policy ID</Label>
+                    <Input
+                      id="buyer-policy-id"
+                      value={createForm.policyId}
+                      onChange={(e) => setCreateForm((p) => ({ ...p, policyId: e.target.value }))}
+                      placeholder="e.g. demo-001"
+                    />
                   </div>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div>
-                      <Label htmlFor="buyer-start-date">Start Date</Label>
-                      <Input
-                        id="buyer-start-date"
-                        type="date"
-                        className="max-w-[180px]"
-                        value={createForm.startDate}
-                        onChange={(e) => setCreateForm((p) => ({ ...p, startDate: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="buyer-end-date">End Date</Label>
-                      <Input
-                        id="buyer-end-date"
-                        type="date"
-                        className="max-w-[180px]"
-                        value={createForm.endDate}
-                        onChange={(e) => setCreateForm((p) => ({ ...p, endDate: e.target.value }))}
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="buyer-location">Location</Label>
+                    <select
+                      id="buyer-location"
+                      className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      value={createForm.location}
+                      onChange={(e) => setCreateForm((p) => ({ ...p, location: e.target.value }))}
+                    >
+                      {LOCATION_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <div>
-                      <Label htmlFor="buyer-threshold">
-                        {buyerCreateType === "event_rainfall" ? "Rain Threshold (mm)" : "Threshold"}
-                      </Label>
-                      <Input
-                        className="max-w-[120px]"
-                        id="buyer-threshold"
-                        type="number"
-                        value={createForm.thresholdMm}
-                        onChange={(e) => setCreateForm((p) => ({ ...p, thresholdMm: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="buyer-payout">Payout</Label>
-                      <Input
-                        className="max-w-[120px]"
-                        id="buyer-payout"
-                        type="number"
-                        value={createForm.payoutUsd}
-                        onChange={(e) => setCreateForm((p) => ({ ...p, payoutUsd: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="buyer-premium">Premium</Label>
-                      <Input
-                        className="max-w-[120px]"
-                        id="buyer-premium"
-                        type="number"
-                        value={createForm.premiumUsd}
-                        onChange={(e) => setCreateForm((p) => ({ ...p, premiumUsd: e.target.value }))}
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="buyer-start-date">Start Date</Label>
+                    <Input
+                      id="buyer-start-date"
+                      type="date"
+                      value={createForm.startDate}
+                      onChange={(e) => setCreateForm((p) => ({ ...p, startDate: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buyer-end-date">End Date</Label>
+                    <Input
+                      id="buyer-end-date"
+                      type="date"
+                      value={createForm.endDate}
+                      onChange={(e) => setCreateForm((p) => ({ ...p, endDate: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buyer-threshold">
+                      {buyerCreateType === "event_rainfall" ? "Rain Threshold (mm)" : "Threshold"}
+                    </Label>
+                    <Input
+                      id="buyer-threshold"
+                      type="number"
+                      value={createForm.thresholdMm}
+                      onChange={(e) => setCreateForm((p) => ({ ...p, thresholdMm: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buyer-payout">Payout</Label>
+                    <Input
+                      id="buyer-payout"
+                      type="number"
+                      value={createForm.payoutUsd}
+                      onChange={(e) => setCreateForm((p) => ({ ...p, payoutUsd: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buyer-premium">Premium</Label>
+                    <Input
+                      id="buyer-premium"
+                      type="number"
+                      value={createForm.premiumUsd}
+                      onChange={(e) => setCreateForm((p) => ({ ...p, premiumUsd: e.target.value }))}
+                    />
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div>
-                      <Label htmlFor="buyer-validator-policy-id">Policy ID</Label>
-                      <Input
-                        id="buyer-validator-policy-id"
-                        value={validatorCreateForm.policyId}
-                        onChange={(e) => setValidatorCreateForm((p) => ({ ...p, policyId: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="buyer-validator-address">Validator Address</Label>
-                      <Input
-                        id="buyer-validator-address"
-                        value={validatorCreateForm.validatorAddress}
-                        onChange={(e) => setValidatorCreateForm((p) => ({ ...p, validatorAddress: e.target.value }))}
-                      />
-                    </div>
+                <div className="max-w-[320px] space-y-3">
+                  <div>
+                    <Label htmlFor="buyer-validator-policy-id">Policy ID</Label>
+                    <Input
+                      id="buyer-validator-policy-id"
+                      value={validatorCreateForm.policyId}
+                      onChange={(e) => setValidatorCreateForm((p) => ({ ...p, policyId: e.target.value }))}
+                    />
                   </div>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div>
-                      <Label htmlFor="buyer-validator-start-date">Start Date</Label>
-                      <Input
-                        id="buyer-validator-start-date"
-                        type="date"
-                        className="max-w-[180px]"
-                        value={validatorCreateForm.startDate}
-                        onChange={(e) => setValidatorCreateForm((p) => ({ ...p, startDate: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="buyer-validator-end-date">End Date</Label>
-                      <Input
-                        id="buyer-validator-end-date"
-                        type="date"
-                        className="max-w-[180px]"
-                        value={validatorCreateForm.endDate}
-                        onChange={(e) => setValidatorCreateForm((p) => ({ ...p, endDate: e.target.value }))}
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="buyer-validator-address">Validator Address</Label>
+                    <Input
+                      id="buyer-validator-address"
+                      value={validatorCreateForm.validatorAddress}
+                      onChange={(e) => setValidatorCreateForm((p) => ({ ...p, validatorAddress: e.target.value }))}
+                    />
                   </div>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <div>
-                      <Label htmlFor="buyer-validator-threshold">Threshold (bps)</Label>
-                      <Input
-                        id="buyer-validator-threshold"
-                        type="number"
-                        value={validatorCreateForm.thresholdUptimeBps}
-                        onChange={(e) => setValidatorCreateForm((p) => ({ ...p, thresholdUptimeBps: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="buyer-validator-payout">Payout</Label>
-                      <Input
-                        id="buyer-validator-payout"
-                        type="number"
-                        value={validatorCreateForm.payoutUsd}
-                        onChange={(e) => setValidatorCreateForm((p) => ({ ...p, payoutUsd: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="buyer-validator-premium">Premium</Label>
-                      <Input
-                        id="buyer-validator-premium"
-                        type="number"
-                        value={validatorCreateForm.premiumUsd}
-                        onChange={(e) => setValidatorCreateForm((p) => ({ ...p, premiumUsd: e.target.value }))}
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="buyer-validator-start-date">Start Date</Label>
+                    <Input
+                      id="buyer-validator-start-date"
+                      type="date"
+                      value={validatorCreateForm.startDate}
+                      onChange={(e) => setValidatorCreateForm((p) => ({ ...p, startDate: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buyer-validator-end-date">End Date</Label>
+                    <Input
+                      id="buyer-validator-end-date"
+                      type="date"
+                      value={validatorCreateForm.endDate}
+                      onChange={(e) => setValidatorCreateForm((p) => ({ ...p, endDate: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buyer-validator-threshold">Threshold (bps)</Label>
+                    <Input
+                      id="buyer-validator-threshold"
+                      type="number"
+                      value={validatorCreateForm.thresholdUptimeBps}
+                      onChange={(e) => setValidatorCreateForm((p) => ({ ...p, thresholdUptimeBps: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buyer-validator-payout">Payout</Label>
+                    <Input
+                      id="buyer-validator-payout"
+                      type="number"
+                      value={validatorCreateForm.payoutUsd}
+                      onChange={(e) => setValidatorCreateForm((p) => ({ ...p, payoutUsd: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buyer-validator-premium">Premium</Label>
+                    <Input
+                      id="buyer-validator-premium"
+                      type="number"
+                      value={validatorCreateForm.premiumUsd}
+                      onChange={(e) => setValidatorCreateForm((p) => ({ ...p, premiumUsd: e.target.value }))}
+                    />
                   </div>
                 </div>
               )}
