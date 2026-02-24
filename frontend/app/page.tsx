@@ -1078,46 +1078,51 @@ export default function HomePage() {
               title="Create Policy"
               subtitle="Create first, then activate assigned policies"
             >
-              <div className="mb-4 flex items-center justify-end">
-                <div className="rounded-lg border border-white/15 bg-black/25 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] flex gap-1">
-                <Button
-                  size="sm"
-                  variant={buyerFlowTab === "create" ? "gradient" : "ghost"}
-                  onClick={() => setBuyerFlowTab("create")}
-                >
-                  Create
-                </Button>
-                <Button
-                  size="sm"
-                  variant={buyerFlowTab === "activate" ? "gradient" : "ghost"}
-                  onClick={() => setBuyerFlowTab("activate")}
-                >
-                  Activate
-                </Button>
+              <div className="mb-5 rounded-xl border border-cyan-300/25 bg-gradient-to-r from-cyan-500/12 via-blue-500/10 to-indigo-500/12 p-3 shadow-[0_10px_28px_rgba(6,182,212,0.08)]">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100/85">
+                  Policy Setup
+                </p>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="rounded-lg border border-white/15 bg-black/25 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] flex gap-1">
+                    <Button
+                      size="sm"
+                      variant={buyerFlowTab === "create" ? "gradient" : "ghost"}
+                      onClick={() => setBuyerFlowTab("create")}
+                    >
+                      Create
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={buyerFlowTab === "activate" ? "gradient" : "ghost"}
+                      onClick={() => setBuyerFlowTab("activate")}
+                    >
+                      Activate
+                    </Button>
+                  </div>
+                  <div className="min-w-[220px] flex-1 max-w-[280px]">
+                    <Label htmlFor="buyer-policy-type" className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-cyan-100/80">
+                      Policy Type
+                    </Label>
+                    <select
+                      id="buyer-policy-type"
+                      className="h-10 w-full rounded-md border border-cyan-300/35 bg-slate-950/75 px-3 py-2 text-sm shadow-[0_0_0_1px_rgba(6,182,212,0.18)]"
+                      value={buyerCreateType}
+                      onChange={(e) =>
+                        applyBuyerPreset(
+                          e.target.value as "weather_drought" | "event_rainfall" | "validator_downtime"
+                        )
+                      }
+                    >
+                      <option value="weather_drought">Drought</option>
+                      <option value="event_rainfall">Event</option>
+                      <option value="validator_downtime">Validator</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
               {buyerFlowTab === "create" ? (
                 <>
-              <div className="mb-4 space-y-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Policy Type
-                </p>
-                <select
-                  id="buyer-policy-type"
-                  className="h-10 w-full max-w-[280px] rounded-md border border-white/25 bg-slate-950/70 px-3 py-2 text-sm shadow-[0_0_0_1px_rgba(255,255,255,0.03)]"
-                  value={buyerCreateType}
-                  onChange={(e) =>
-                    applyBuyerPreset(
-                      e.target.value as "weather_drought" | "event_rainfall" | "validator_downtime"
-                    )
-                  }
-                >
-                  <option value="weather_drought">Drought</option>
-                  <option value="event_rainfall">Event</option>
-                  <option value="validator_downtime">Validator</option>
-                </select>
-              </div>
               {buyerCreateType !== "validator_downtime" ? (
                 <div className="max-w-[340px] space-y-3 rounded-xl border border-cyan-300/20 bg-gradient-to-b from-cyan-500/10 to-blue-500/5 p-4">
                   <div>
