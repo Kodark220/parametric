@@ -876,31 +876,31 @@ export default function HomePage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="policy-id">Policy ID</Label>
-                <Input id="policy-id" value={createForm.policyId} onChange={(e) => setCreateForm((p) => ({ ...p, policyId: e.target.value }))} />
+                <Input className="max-w-[240px]" id="policy-id" value={createForm.policyId} onChange={(e) => setCreateForm((p) => ({ ...p, policyId: e.target.value }))} />
                 <Label htmlFor="location">Location</Label>
-                <Input id="location" value={createForm.location} onChange={(e) => setCreateForm((p) => ({ ...p, location: e.target.value }))} />
+                <Input className="max-w-[240px]" id="location" value={createForm.location} onChange={(e) => setCreateForm((p) => ({ ...p, location: e.target.value }))} />
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="start-date">Start Date</Label>
-                    <Input id="start-date" value={createForm.startDate} onChange={(e) => setCreateForm((p) => ({ ...p, startDate: e.target.value }))} />
+                    <Input className="max-w-[180px]" id="start-date" value={createForm.startDate} onChange={(e) => setCreateForm((p) => ({ ...p, startDate: e.target.value }))} />
                   </div>
                   <div>
                     <Label htmlFor="end-date">End Date</Label>
-                    <Input id="end-date" value={createForm.endDate} onChange={(e) => setCreateForm((p) => ({ ...p, endDate: e.target.value }))} />
+                    <Input className="max-w-[180px]" id="end-date" value={createForm.endDate} onChange={(e) => setCreateForm((p) => ({ ...p, endDate: e.target.value }))} />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   <div>
                     <Label htmlFor="threshold">Threshold</Label>
-                    <Input id="threshold" value={createForm.thresholdMm} onChange={(e) => setCreateForm((p) => ({ ...p, thresholdMm: e.target.value }))} />
+                    <Input className="max-w-[120px]" id="threshold" value={createForm.thresholdMm} onChange={(e) => setCreateForm((p) => ({ ...p, thresholdMm: e.target.value }))} />
                   </div>
                   <div>
                     <Label htmlFor="payout">Payout</Label>
-                    <Input id="payout" value={createForm.payoutUsd} onChange={(e) => setCreateForm((p) => ({ ...p, payoutUsd: e.target.value }))} />
+                    <Input className="max-w-[120px]" id="payout" value={createForm.payoutUsd} onChange={(e) => setCreateForm((p) => ({ ...p, payoutUsd: e.target.value }))} />
                   </div>
                   <div>
                     <Label htmlFor="premium">Premium</Label>
-                    <Input id="premium" value={createForm.premiumUsd} onChange={(e) => setCreateForm((p) => ({ ...p, premiumUsd: e.target.value }))} />
+                    <Input className="max-w-[120px]" id="premium" value={createForm.premiumUsd} onChange={(e) => setCreateForm((p) => ({ ...p, premiumUsd: e.target.value }))} />
                   </div>
                 </div>
                 <Label htmlFor="buyer-address">Buyer Address</Label>
@@ -1121,28 +1121,36 @@ export default function HomePage() {
 
               {buyerFlowTab === "create" ? (
                 <>
-              <div className="mb-3 flex gap-2">
-                <Button
-                  size="sm"
-                  variant={buyerCreateType === "weather_drought" ? "default" : "outline"}
-                  onClick={() => setBuyerCreateType("weather_drought")}
-                >
-                  Drought
-                </Button>
-                <Button
-                  size="sm"
-                  variant={buyerCreateType === "event_rainfall" ? "default" : "outline"}
-                  onClick={() => setBuyerCreateType("event_rainfall")}
-                >
-                  Event
-                </Button>
-                <Button
-                  size="sm"
-                  variant={buyerCreateType === "validator_downtime" ? "default" : "outline"}
-                  onClick={() => setBuyerCreateType("validator_downtime")}
-                >
-                  Validator
-                </Button>
+              <div className="mb-4 space-y-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Policy Type
+                </p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <Button
+                    size="sm"
+                    className="w-full justify-center"
+                    variant={buyerCreateType === "weather_drought" ? "default" : "outline"}
+                    onClick={() => setBuyerCreateType("weather_drought")}
+                  >
+                    Drought
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="w-full justify-center"
+                    variant={buyerCreateType === "event_rainfall" ? "default" : "outline"}
+                    onClick={() => setBuyerCreateType("event_rainfall")}
+                  >
+                    Event
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="w-full justify-center"
+                    variant={buyerCreateType === "validator_downtime" ? "default" : "outline"}
+                    onClick={() => setBuyerCreateType("validator_downtime")}
+                  >
+                    Validator
+                  </Button>
+                </div>
               </div>
               {buyerCreateType !== "validator_downtime" ? (
                 <div className="space-y-4">
@@ -1150,6 +1158,7 @@ export default function HomePage() {
                     <div>
                       <Label htmlFor="buyer-policy-id">Policy ID</Label>
                       <Input
+                        className="max-w-[240px]"
                         id="buyer-policy-id"
                         value={createForm.policyId}
                         onChange={(e) => setCreateForm((p) => ({ ...p, policyId: e.target.value }))}
@@ -1159,6 +1168,7 @@ export default function HomePage() {
                     <div>
                       <Label htmlFor="buyer-location">Location</Label>
                       <Input
+                        className="max-w-[240px]"
                         id="buyer-location"
                         value={createForm.location}
                         onChange={(e) => setCreateForm((p) => ({ ...p, location: e.target.value }))}
@@ -1194,6 +1204,7 @@ export default function HomePage() {
                         {buyerCreateType === "event_rainfall" ? "Rain Threshold (mm)" : "Threshold"}
                       </Label>
                       <Input
+                        className="max-w-[120px]"
                         id="buyer-threshold"
                         type="number"
                         value={createForm.thresholdMm}
@@ -1203,6 +1214,7 @@ export default function HomePage() {
                     <div>
                       <Label htmlFor="buyer-payout">Payout</Label>
                       <Input
+                        className="max-w-[120px]"
                         id="buyer-payout"
                         type="number"
                         value={createForm.payoutUsd}
@@ -1212,6 +1224,7 @@ export default function HomePage() {
                     <div>
                       <Label htmlFor="buyer-premium">Premium</Label>
                       <Input
+                        className="max-w-[120px]"
                         id="buyer-premium"
                         type="number"
                         value={createForm.premiumUsd}
